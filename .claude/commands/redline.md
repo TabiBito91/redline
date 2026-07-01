@@ -145,11 +145,17 @@ Read `config.delivery.method` from `~/.redline/config.json` (default to local if
 - Your natural-language summary from Step 6.
 - Any no-change pairs or parsing issues (scanned PDFs, ambiguous ordering you had to ask about) — flag these plainly rather than burying them.
 
-**Telegram or email**: send the summary text plus the output files as attachments:
+**Telegram or email**: confirm the recipient before every send — never silently reuse the saved default without checking, since a saved default from an earlier conversation may not be who the user wants this particular output going to.
+
+- If the user already named a specific recipient in this same request (e.g. "send this to alice@example.com"), use that recipient for this send and skip the question below.
+- Otherwise, ask: "Send to `<config.delivery.email or chatId>` (your saved default), or somewhere else for this one?" Use whichever the user picks for this send only.
+- Only overwrite `config.json`'s saved default if the user explicitly says to make it their new default (e.g. "always send here from now on") — see "Handling Follow-Up Requests" below. A one-off recipient for this send should not silently become the new default.
+
+Then send the summary text plus the output files as attachments:
 
 ```
-python3 scripts/deliver.py --method telegram --files ./redline-output/*.html,./redline-output/*.docx --summary "<your Step 6 summary>"
-python3 scripts/deliver.py --method email --to user@example.com --files ./redline-output/*.html,./redline-output/*.docx --summary "<your Step 6 summary>"
+python3 scripts/deliver.py --method telegram --files ./redline-output/*.html,./redline-output/*.docx --summary "<your Step 6 summary>" --chat-id <confirmed chat ID>
+python3 scripts/deliver.py --method email --to <confirmed email> --files ./redline-output/*.html,./redline-output/*.docx --summary "<your Step 6 summary>"
 ```
 
 Still tell the user in chat what was sent and where the local copies live — delivery is a convenience on top of the local files, not a replacement for telling them what happened. If `deliver.py` fails (bad token, missing key, network issue), fall back to reporting the local file paths and let the user know delivery didn't go through, rather than silently dropping the output.
@@ -161,6 +167,7 @@ Still tell the user in chat what was sent and where the local copies live — de
 - **Never infer content from a scanned or image-only PDF.** If `extract.py` flags no extractable text, say OCR is needed. Guessing what a scanned page probably says is worse than saying nothing.
 - **Never guess version ordering when it's ambiguous.** If filenames/dates don't make the sequence obvious, ask. A redline built on the wrong order is confidently wrong, not just incomplete.
 - **Never send Telegram or email delivery without a confirmed token/key and explicit user opt-in.** No placeholder chat IDs, no assuming a delivery method carries over from a different context.
+- **Never send to a saved recipient without confirming it for this send.** Confirm the recipient (or use one the user already named this turn) every time, per Step 7 — a saved default is a convenience, not a standing authorization to send anywhere on the user's behalf without checking.
 - **Never let a delivery failure silently swallow the output.** If `deliver.py` fails, fall back to reporting local file paths — the user should never end up with nothing after a run that actually produced results.
 - **Never modify or overwrite the user's original documents.** All output is new files in the output folder; the source files are read-only inputs.
 
@@ -171,7 +178,8 @@ Still tell the user in chat what was sent and where the local copies live — de
 - "Only show me v3 and v4" → narrow the input set, rerun from Step 1.
 - "There's a table that got cut off" / similar extraction complaints → check `extract.py`'s table handling before assuming the diff itself is wrong.
 - "Send this to Telegram/email instead" / "just show me the files" → update `delivery.method` in `~/.redline/config.json`; walk through the relevant setup from "Delivery Preferences" above if switching to Telegram or email for the first time.
-- "Send my redlines to a different email" → update `delivery.email` in `config.json`.
+- "Send this one to bob@example.com" → use that address for this send only, per Step 7; don't touch the saved default in `config.json` unless the user also says to make it permanent.
+- "Send my redlines to a different email [from now on]" / "make this my new email" → update `delivery.email` in `config.json` so it becomes the new saved default.
 - "Switch to Chinese/English/bilingual" → update `language` in `config.json`; applies starting with the next summary, no need to re-run the current comparison.
 
 ## Manual Invocation
