@@ -1,8 +1,8 @@
 # redline/scripts
 
-The deterministic backbone of the `redline` skill. `SKILL.md` orchestrates these —
+The deterministic backbone of the `redline` skill. `.claude/commands/redline.md` orchestrates these —
 this file is here so a human (or another agent) can understand, run, or debug them
-directly without reading `SKILL.md` first.
+directly without reading the skill definition first.
 
 ## How It Works
 
