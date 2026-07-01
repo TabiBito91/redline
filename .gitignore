@@ -5,6 +5,7 @@ __pycache__/
 
 # Skill runtime output
 redline-output/
+contracts/
 
 # Local delivery config (lives at ~/.redline/, not in the repo)
 .env
