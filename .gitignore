@@ -1,0 +1,10 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Skill runtime output
+redline-output/
+
+# Local delivery config (lives at ~/.redline/, not in the repo)
+.env
